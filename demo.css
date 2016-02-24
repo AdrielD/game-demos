@@ -1,0 +1,4 @@
+body { margin: 0; padding: 0; text-decoration: none; background-color: #eee; }
+#header { text-align: center; }
+#container { text-align: center; margin: 0 auto; border: 1px solid #000; width: 935px; height: 465px; }
+#container canvas { background: url("colorfull.jpg"); background-size: 935px 465px; }
