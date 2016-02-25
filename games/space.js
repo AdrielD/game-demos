@@ -7,6 +7,10 @@
 		MAX_HEIGHT = canvas.height;
 		ctx = canvas.getContext("2d");
 
+		bullets = [];
+		asteroids = [];
+		ship = spawnObject(MAX_WIDTH/2 - 25, MAX_HEIGHT - 50, 50, 50, 6, "ship.png");
+
 		running = true;
 		loop();
 	};
@@ -27,11 +31,40 @@
 	}
 
 	function update() {
-		
+		for(var b in bullets) {
+			for(var a in asteroids) {
+				checkCollision(a,b);
+			}
+		}
+
+		var new_asteroids = [];
+		for(var c in asteroids) {
+			if (!asteroids[c].destroy) {
+				new_asteroids.push(asteroids[c]);
+			}
+		}
+		asteroids = new_asteroids;
+
+		var new_bullets = [];
+		for(var d in bullets) {
+			if (!bullets[d].destroy) {
+				new_bullets.push(bullets[d]);
+			}
+		}
+		bullets = new_bullets;
 	}
 
 	function render() {
 		clear();
+		ship.draw(ctx);
+
+		for(var a in asteroids) {
+			asteroids[a].draw(ctx);
+		}
+
+		for(var b in bullets) {
+			bullets[b].draw(ctx);
+		}
 	}
 
 	function clear() {
@@ -82,6 +115,7 @@
 			w: width,
 			h: height,
 			image: img,
+			destroy: false,
 			draw: function(context) {
 				context.drawImage(this.image, this.x, this.y, this.w, this.h);
 			}
