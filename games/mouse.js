@@ -75,11 +75,14 @@
 	}
 
 	function moveMouse(mouseX, mouseY) {
-		mouse.vx = (mouseX >= mouse.x) ? 1 : -1;
+		var cursorX = mouseX - mouse.w/2;
+		var cursorY = mouseY - mouse.h/2;
+
+		mouse.vx = (cursorX >= mouse.x) ? 1 : -1;
 		mouse.x += mouse.vx * mouse.speed;
 
-		if(mouseX >= mouse.x - mouse.speed && mouseX <= mouse.x + mouse.speed) {
-			mouse.x = mouseX;
+		if(cursorX >= mouse.x - mouse.speed && cursorX <= mouse.x + mouse.speed) {
+			mouse.x = cursorX;
 		}
 
 		if (mouse.x > MAX_WIDTH - mouse.w) {
@@ -89,11 +92,11 @@
 			mouse.x = 0;
 		}
 
-		mouse.vy = (mouseY >= mouse.y) ? 1 : -1;
+		mouse.vy = (cursorY >= mouse.y) ? 1 : -1;
 		mouse.y += mouse.vy * mouse.speed;
 		
-		if(mouseY >= mouse.y - mouse.speed && mouseY <= mouse.y + mouse.speed) {
-			mouse.y = mouseY;
+		if(cursorY >= mouse.y - mouse.speed && cursorY <= mouse.y + mouse.speed) {
+			mouse.y = cursorY;
 		}
 
 		if (mouse.y > MAX_HEIGHT - mouse.h) {
