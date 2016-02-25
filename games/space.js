@@ -72,6 +72,15 @@
 		ctx.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
 	}
 
+	function spawnAsteroid() {
+		var randomX = Math.floor(Math.random() * (MAX_WIDTH - 70));
+		asteroids.push(spawnObject(randomX, -70, 70, 70, 4, "asteroid.png"));
+	}
+
+	function spawnBullet(originX, originY) {
+		bullets.push(spawnObject(originX, originY, 10, 10, 25, "bullet.png"));
+	}
+
 	function checkCollision(obj1, obj2) {
 		var collision = false;
 
