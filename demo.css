@@ -1,5 +1,5 @@
 body { margin: 0; padding: 0; text-decoration: none; background-color: #eee; }
 header { text-align: center; }
+#list li { display: inline-block; margin-right: 40px; }
 #container { text-align: center; margin: 0 auto; border: 1px solid #000; width: 935px; height: 465px; }
-#container canvas { background: url("colorfull.jpg"); background-size: 935px 465px; }
 footer { text-align: center; font-size: 14px; margin-top: 20px; }
