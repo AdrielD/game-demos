@@ -1,14 +1,22 @@
 (function() {
 
-	var MAX_WIDTH, MAX_HEIGHT, ctx, cheese, mouse, cursorX, cursorY, animationId, running;
+	var MAX_WIDTH, MAX_HEIGHT, ctx, cheese, mouse, grid, floor, nhom, 
+		cursorX, cursorY, animationId, running, center, timeout, last_time;
 
 	window.startMouseGame = function(canvas) {
 		MAX_WIDTH = canvas.width;
 		MAX_HEIGHT = canvas.height;
 		ctx = canvas.getContext("2d");
+		center = { x: MAX_WIDTH/2, y: MAX_HEIGHT/2 };
 
 		cheese = spawnObject(0, 0, 50, 50, 5, "cheese.png");
 		mouse = spawnObject(0, 0, 80, 80, 3.5, "mouse.png");
+		grid = spawnObject(-MAX_WIDTH, -MAX_HEIGHT, MAX_WIDTH*2, MAX_HEIGHT*2, 3, "grid.png");
+		floor = spawnObject(-MAX_WIDTH, -MAX_HEIGHT, MAX_WIDTH*2, MAX_HEIGHT*2, 1, "floor2.jpg");
+		nhom = spawnObject(0, 0, 100, 50, 0, "nhom.png");
+		nhom.visible = false;
+		timeout = 300;
+		last_time = 0;
 
 		canvas.addEventListener("mousemove", function(event) {
 			cursorX = event.clientX - canvas.offsetLeft;
@@ -38,20 +46,83 @@
 	function update() {
 		moveCheese();
 		moveMouse(cursorX, cursorY);
-		if(checkCollision(mouse, cheese)) {
-			cheeseInRandomPos();
+
+		var now = Date.now();
+		if(now - last_time >= timeout) {
+			nhom.visible = false;
 		}
+
+		if(checkCollision(mouse, cheese)) {
+			nhom.x = cheese.x;
+			nhom.y = cheese.y;
+			nhom.visible = true;
+			last_time = now;
+			cheeseInRandomPos();
+		}	
+
+		backgroundParalax();
 	}
 
 	function render() {
 		clear();
+
+		floor.draw(ctx);
+		grid.draw(ctx);
 		cheese.draw(ctx);
 		mouse.draw(ctx);
+
+		if(nhom.visible) {
+			nhom.draw(ctx);
+		}
 	}
 
 	function clear() {
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
+	}
+
+	function backgroundParalax() {
+		if (cursorX > center.x) {
+			grid.x -= grid.speed;
+			floor.x -= floor.speed;
+		} else {
+			grid.x += grid.speed;
+			floor.x += floor.speed;
+		}
+
+		if(grid.x > 0) {
+			grid.x = 0;
+		} 
+		else if (grid.x < -MAX_WIDTH) {
+			grid.x = -MAX_WIDTH;
+		}
+		if(floor.x > 0) {
+			floor.x = 0;
+		} 
+		else if (floor.x < -MAX_WIDTH) {
+			floor.x = -MAX_WIDTH;
+		}
+
+		if (cursorY > center.y) {
+			grid.y -= grid.speed;
+			floor.y -= floor.speed;
+		} else {
+			grid.y += grid.speed;
+			floor.y += floor.speed;
+		}
+
+		if(grid.y > 0) {
+			grid.y = 0;
+		} 
+		else if (grid.y < -MAX_HEIGHT) {
+			grid.y = -MAX_HEIGHT;
+		}
+		if(floor.y > 0) {
+			floor.y = 0;
+		} 
+		else if (floor.y < -MAX_HEIGHT) {
+			floor.y = -MAX_HEIGHT;
+		}
 	}
 
 	function moveCheese() {
@@ -159,6 +230,7 @@
 			speed: speed,
 			w: width,
 			h: height,
+			visible: true,
 			image: img,
 			draw: function(context) {
 				context.drawImage(this.image, this.x, this.y, this.w, this.h);

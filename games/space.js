@@ -1,15 +1,21 @@
 (function() {
 
-	var MAX_WIDTH, MAX_HEIGHT, ctx, ship, bullets, asteroids, cursorX, cursorY, animationId, running, last_time, spawn_time;
+	var MAX_WIDTH, MAX_HEIGHT, ctx, ship, bullets, asteroids, explosions, stars_bg, stars_bg2, space,
+		cursorX, cursorY, animationId, running, last_time, spawn_time, explosion_time, center;
 
 	window.startSpaceGame = function(canvas) {
 		MAX_WIDTH = canvas.width;
 		MAX_HEIGHT = canvas.height;
 		ctx = canvas.getContext("2d");
+		center = { x: MAX_WIDTH/2, y: MAX_HEIGHT/2 };
 
 		bullets = [];
 		asteroids = [];
 		ship = spawnObject(MAX_WIDTH/2 - 25, MAX_HEIGHT - 50, 50, 50, 12, "ship.png");
+		space = spawnObject(-MAX_WIDTH, -MAX_HEIGHT, MAX_WIDTH*2, MAX_HEIGHT*2, 3, "space.jpg");
+		// stars_bg = spawnObject(-MAX_WIDTH, -MAX_HEIGHT, MAX_WIDTH*2, MAX_HEIGHT*2, 2, "stars_bg.png");
+		// stars_bg2 = spawnObject(-MAX_WIDTH, -MAX_HEIGHT, MAX_WIDTH*2, MAX_HEIGHT*2, 2, "stars_bg2.gif");
+		stars_bg3 = spawnObject(-MAX_WIDTH, -MAX_HEIGHT, MAX_WIDTH*2, MAX_HEIGHT*2, 2, "stars_bg3.png");
 
 		canvas.addEventListener("mousemove", function(event) {
 			cursorX = event.clientX - canvas.offsetLeft;
@@ -18,10 +24,12 @@
 
 		canvas.addEventListener("click", function(event) {
 			spawnBullet(ship.x + 10, ship.y);
-		})
+		});
 
 		last_time = 0;
 		spawn_time = 0;
+		// explosion_time = 100;
+		// last_explosion = 0;
 
 		running = true;
 		loop();
@@ -44,6 +52,7 @@
 
 	function update() {
 		moveShip(cursorX, cursorY);
+		backgroundParalax();
 
 		var now = Date.now();
 
@@ -52,6 +61,10 @@
 			last_time = now;
 			spawn_time = Math.random() * (1500 - 800) + 800;
 		}
+
+		// if(now - last_explosion >= explosion_time) {
+
+		// }
 
 		for(var a in asteroids) {
 			asteroids[a].y += asteroids[a].speed;
@@ -70,6 +83,8 @@
 		for(var b2 in bullets) {
 			for(var a2 in asteroids) {
 				if (checkCollision(asteroids[a2], bullets[b2])) {
+					// spawnExplosion(asteroids[a2].x, asteroids[a2].y);
+					// last_explosion = now;
 					bullets[b2].destroy = true;
 					asteroids[a2].destroy = true;
 					// console.log("BOOM!");
@@ -96,6 +111,10 @@
 
 	function render() {
 		clear();
+
+		space.draw(ctx);
+		// stars_bg.draw(ctx);
+		stars_bg3.draw(ctx);
 		ship.draw(ctx);
 
 		for(var a in asteroids) {
@@ -105,11 +124,59 @@
 		for(var b in bullets) {
 			bullets[b].draw(ctx);
 		}
+
+		// for(var e in explosions) {
+		// 	explosions[e].draw(ctx);
+		// }
 	}
 
 	function clear() {
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
+	}
+
+	function backgroundParalax() {
+		if (cursorX > center.x) {
+			space.x -= space.speed;
+			stars_bg3.x -= stars_bg3.speed;
+		} else {
+			space.x += space.speed;
+			stars_bg3.x += stars_bg3.speed;
+		}
+
+		if(space.x > 0) {
+			space.x = 0;
+		} 
+		else if (space.x < -MAX_WIDTH) {
+			space.x = -MAX_WIDTH;
+		}
+		if(stars_bg3.x > 0) {
+			stars_bg3.x = 0;
+		} 
+		else if (stars_bg3.x < -MAX_WIDTH) {
+			stars_bg3.x = -MAX_WIDTH;
+		}
+
+		if (cursorY > center.y) {
+			space.y -= space.speed;
+			stars_bg3.y -= stars_bg3.speed;
+		} else {
+			space.y += space.speed;
+			stars_bg3.y += stars_bg3.speed;
+		}
+
+		if(space.y > 0) {
+			space.y = 0;
+		} 
+		else if (space.y < -MAX_HEIGHT) {
+			space.y = -MAX_HEIGHT;
+		}
+		if(stars_bg3.y > 0) {
+			stars_bg3.y = 0;
+		} 
+		else if (stars_bg3.y < -MAX_HEIGHT) {
+			stars_bg3.y = -MAX_HEIGHT;
+		}
 	}
 
 	function spawnAsteroid() {
@@ -130,6 +197,10 @@
 
 	function spawnBullet(originX, originY) {
 		bullets.push(spawnObject(originX, originY, 32, 32, 25, "bullet.png"));
+	}
+
+	function spawnExplosion(originX, originY) {
+		explosions.push(spawnObject(originX, originY, 50, 50, 0, "boom.png"));
 	}
 
 	function moveShip(mouseX, mouseY) {
@@ -208,6 +279,7 @@
 			w: width,
 			h: height,
 			image: img,
+			cooldown: 100,
 			destroy: false,
 			draw: function(context) {
 				context.drawImage(this.image, this.x, this.y, this.w, this.h);
