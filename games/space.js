@@ -1,6 +1,6 @@
 (function() {
 
-	var MAX_WIDTH, MAX_HEIGHT, ctx, ship, bullets, asteroids, cursorX, cursorY, animationId, running;
+	var MAX_WIDTH, MAX_HEIGHT, ctx, ship, bullets, asteroids, cursorX, cursorY, animationId, running, last_time, spawn_time;
 
 	window.startSpaceGame = function(canvas) {
 		MAX_WIDTH = canvas.width;
@@ -9,7 +9,19 @@
 
 		bullets = [];
 		asteroids = [];
-		ship = spawnObject(MAX_WIDTH/2 - 25, MAX_HEIGHT - 50, 50, 50, 6, "ship.png");
+		ship = spawnObject(MAX_WIDTH/2 - 25, MAX_HEIGHT - 50, 50, 50, 12, "ship.png");
+
+		canvas.addEventListener("mousemove", function(event) {
+			cursorX = event.clientX - canvas.offsetLeft;
+			cursorY = event.clientY - canvas.offsetTop;
+		});
+
+		canvas.addEventListener("click", function(event) {
+			spawnBullet(ship.x + 10, ship.y);
+		})
+
+		last_time = 0;
+		spawn_time = 0;
 
 		running = true;
 		loop();
@@ -31,9 +43,37 @@
 	}
 
 	function update() {
+		moveShip(cursorX, cursorY);
+
+		var now = Date.now();
+
+		if ((now - last_time) >= spawn_time) {
+			spawnAsteroid();
+			last_time = now;
+			spawn_time = Math.random() * (1500 - 800) + 800;
+		}
+
+		for(var a in asteroids) {
+			asteroids[a].y += asteroids[a].speed;
+			if (asteroids[a].y >= MAX_HEIGHT) {
+				asteroids[a].destroy = true;
+			}
+		}
+
 		for(var b in bullets) {
-			for(var a in asteroids) {
-				checkCollision(a,b);
+			bullets[b].y -= bullets[b].speed;
+			if (bullets[b].y <= 0) {
+				bullets[b].destroy = true;
+			}
+		}
+
+		for(var b2 in bullets) {
+			for(var a2 in asteroids) {
+				if (checkCollision(asteroids[a2], bullets[b2])) {
+					bullets[b2].destroy = true;
+					asteroids[a2].destroy = true;
+					// console.log("BOOM!");
+				}
 			}
 		}
 
@@ -74,11 +114,55 @@
 
 	function spawnAsteroid() {
 		var randomX = Math.floor(Math.random() * (MAX_WIDTH - 70));
-		asteroids.push(spawnObject(randomX, -70, 70, 70, 4, "asteroid.png"));
+		var randomSize = Math.floor(Math.random() * (80 - 50) + 50);
+		var speed;
+		if(randomSize >= 70) {
+			speed = 1;
+		}
+		else if (randomSize >= 60) {
+			speed = 2;
+		}
+		else {
+			speed = 3;
+		}
+		asteroids.push(spawnObject(randomX, -randomSize, randomSize, randomSize, speed, "asteroid.png"));
 	}
 
 	function spawnBullet(originX, originY) {
-		bullets.push(spawnObject(originX, originY, 10, 10, 25, "bullet.png"));
+		bullets.push(spawnObject(originX, originY, 32, 32, 25, "bullet.png"));
+	}
+
+	function moveShip(mouseX, mouseY) {
+		var cursorX = mouseX - ship.w/2;
+		var cursorY = mouseY - ship.h/2;
+
+		ship.vx = (cursorX >= ship.x) ? 1 : -1;
+		ship.x += ship.vx * ship.speed;
+
+		if(cursorX >= ship.x - ship.speed && cursorX <= ship.x + ship.speed) {
+			ship.x = cursorX;
+		}
+
+		if (ship.x > MAX_WIDTH - ship.w) {
+			ship.x = MAX_WIDTH - ship.w;
+		}
+		else if (ship.x < 0) {
+			ship.x = 0;
+		}
+
+		ship.vy = (cursorY >= ship.y) ? 1 : -1;
+		ship.y += ship.vy * ship.speed;
+		
+		if(cursorY >= ship.y - ship.speed && cursorY <= ship.y + ship.speed) {
+			ship.y = cursorY;
+		}
+
+		if (ship.y > MAX_HEIGHT - ship.h) {
+			ship.y = MAX_HEIGHT - ship.h;
+		}
+		else if (ship.y < 0) {
+			ship.y = 0;
+		}
 	}
 
 	function checkCollision(obj1, obj2) {

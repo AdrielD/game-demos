@@ -1,5 +1,7 @@
 body { margin: 0; padding: 0; text-decoration: none; background-color: #eee; }
 header { text-align: center; }
-#list li { display: inline-block; margin-right: 40px; cursor: pointer; }
+#list { -moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; user-select: none; }
+#list li { display: inline-block; margin-right: 40px; cursor: pointer;  }
 #container { text-align: center; margin: 0 auto; border: 1px solid #000; width: 935px; height: 465px; }
+#container canvas { -moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; user-select: none; }
 footer { text-align: center; font-size: 14px; margin-top: 20px; }
