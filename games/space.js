@@ -112,27 +112,30 @@
 	function render() {
 		clear();
 
-		space.draw(ctx);
-		// stars_bg.draw(ctx);
-		stars_bg3.draw(ctx);
-		ship.draw(ctx);
+		drawSprite(space);
+		drawSprite(stars_bg3);
+		drawSprite(ship);
 
 		for(var a in asteroids) {
-			asteroids[a].draw(ctx);
+			drawSprite(asteroids[a]);
 		}
 
 		for(var b in bullets) {
-			bullets[b].draw(ctx);
+			drawSprite(bullets[b]);
 		}
 
 		// for(var e in explosions) {
-		// 	explosions[e].draw(ctx);
+		// 	drawSprite(explosions[e]);
 		// }
 	}
 
 	function clear() {
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
+	}
+
+	function drawSprite(sprite) {
+		ctx.drawImage(sprite.image, sprite.x, sprite.y, sprite.w, sprite.h);
 	}
 
 	function backgroundParalax() {
@@ -280,10 +283,7 @@
 			h: height,
 			image: img,
 			cooldown: 100,
-			destroy: false,
-			draw: function(context) {
-				context.drawImage(this.image, this.x, this.y, this.w, this.h);
-			}
+			destroy: false
 		};
 	}
 

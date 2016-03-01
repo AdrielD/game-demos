@@ -66,19 +66,23 @@
 	function render() {
 		clear();
 
-		floor.draw(ctx);
-		grid.draw(ctx);
-		cheese.draw(ctx);
-		mouse.draw(ctx);
+		drawSprite(floor);
+		drawSprite(grid);
+		drawSprite(cheese);
+		drawSprite(mouse);
 
 		if(nhom.visible) {
-			nhom.draw(ctx);
+			drawSprite(nhom);
 		}
 	}
 
 	function clear() {
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
+	}
+
+	function drawSprite(sprite) {
+		ctx.drawImage(sprite.image, sprite.x, sprite.y, sprite.w, sprite.h);
 	}
 
 	function backgroundParalax() {
@@ -231,10 +235,7 @@
 			w: width,
 			h: height,
 			visible: true,
-			image: img,
-			draw: function(context) {
-				context.drawImage(this.image, this.x, this.y, this.w, this.h);
-			}
+			image: img
 		};
 	}
 
